@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css">
+    <script src="./jquery.js"></script>
+    <script src="./bootstrap/js/bootstrap.min.js"></script>
+    <style>
+        body{
+            background-color: khaki;
+
+        }
+        .modal-body{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 200px;
+        }
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        table{
+            text-align: center;
+        }
+        thead{
+            text-indent: 30px;
+        }
+    </style>
+</head>
+<body>
+    <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+        添加
+      </button>
+      <table width="500px" border="1" cellspacing="0">
+          <thead>
+              <tr>
+                  <th>用户名</th>
+                  <th>年龄</th>
+                  <th>手机号</th>
+                  <th>QQ号</th>
+                  <th>操作</th>
+              </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+      </table>
+      <!-- 添加Modal -->
+      <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <h4 class="modal-title" id="myModalLabel">添加</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    用户名：<input type="text" placeholder="请输入姓名" class="username">
+                </div>
+                <div>
+              年龄：<input type="text" placeholder="请输入年龄" class="age">
+                </div>
+                <div>
+              手机号：<input type="text" placeholder="请输入手机号" class="phone">
+                </div>
+                <div>
+              QQ号：<input type="text" placeholder="请输入QQ号" class="qq">
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+              <button type="button" class="btn btn-primary" id="tian">确认添加</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 修改模态框 -->
+      <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <h4 class="modal-title" id="myModalLabel">修改</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    用户名：<input type="text" placeholder="请输入姓名" class="usernamea">
+                </div>
+                <div>
+              年龄：<input type="text" placeholder="请输入年龄" class="agea">
+                </div>
+                <div>
+              手机号：<input type="text" placeholder="请输入手机号" class="phonea">
+                </div>
+                <div>
+              QQ号：<input type="text" placeholder="请输入QQ号" class="qqa">
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+              <button type="button" class="btn btn-primary" onclick="quexiu(this)">确认修改</button>
+            </div>
+          </div>
+        </div>
+      </div>
+</body>
+<script>
+    function yz() {
+  // 姓名验证为中文格式
+  var reg1 = /^[\u2E80-\u9FFF]+$/;
+  // 验证年龄
+  var reg2 = /^[0-9]{1,3}$/;
+  // 验证手机号
+  var reg3 = /[0-9]{11}/;
+  //qq
+  var cP = /^[1-9]{6,11}$/;
+  if (
+    $(".username").val() == "" ||
+    $(".age").val() == "" ||
+    $(".phone").val() == "" ||
+    $(".qq").val() == "" 
+  ) {
+    alert("请输入对应的内容");
+  } else {
+    // 验证格式
+    if (
+      reg1.test($(".username").val()) &&
+      reg2.test($(".age").val()) &&
+      reg3.test($(".phone").val()) &&
+      cP.test($(".qq").val()) 
+    ) {
+      return true;
+    } else {
+      alert("您有格式不正确，请更正");
+    }
+  }
+}
+    function show(){
+        $("tbody").empty()
+        $.get("http://localhost:1314/show",{},function(res){
+            res.forEach(item => {
+                $("<tr/>").html(`
+                <td>${item.username}</td>
+                <td>${item.age}</td>
+                <td>${item.phone}</td>
+                <td>${item.qq}</td>
+                <td>
+                <span class="glyphicon glyphicon-pencil"  data-toggle="modal" data-target="#myModal1" id = ${item._id} onclick="gai(this)"></span>
+                <span class="glyphicon glyphicon-remove" id = ${item._id} onclick = "del(this)"></span>
+                </td>
+                `).appendTo($("tbody"))
+            });
+        })
+    }
+    //增加
+    $("#tian").on("click",function(){
+        var bol = yz()
+        if(bol){
+            $("#tian").attr("data-dismiss","modal")
+            $.get("http://localhost:1314/add",{
+                username:$(".username").val(),
+                age:$(".age").val(),
+                phone:$(".phone").val(),
+                qq:$(".qq").val()
+            },function(res){
+                if(res.status == 1){
+                    show()
+                }
+                $(".username").val()
+                $(".age").val()
+                $(".phone").val()
+                $(".qq").val()
+            })        
+        }
+    })
+    //删除
+    function del(ele){
+        let id = $(ele).attr("id")
+        localStorage.setItem("id",id)
+        $.get("http://localhost:1314/del",{id},function(res){
+            console.log(res);
+            res.status==1?show():null
+        })
+    }
+    //反显
+    function gai(ele){
+        let id = $(ele).attr("id")
+  localStorage.setItem("id", id);
+        $.get("http://localhost:1314/gai",{id},function(res){
+            $(".usernamea").val(res[0].username)
+            $(".agea").val(res[0].age)
+            $(".phonea").val(res[0].phone)
+            $(".qqa").val(res[0].qq)
+        })
+    }
+    //确认修改
+    function quexiu(ele){
+        $(ele).attr("data-dismiss","modal")
+        let id = localStorage.getItem("id")
+        let username = $(".usernamea").val()
+        let age = $(".agea").val()
+        let phone = $(".phonea").val()
+        let qq = $(".qqa").val()
+        $.ajax({
+    type: "get",
+    url: "http://localhost:1314/quexiu",
+    data: {id, username, age, phone, qq},
+    success(res) {
+      res.status == 1 ? show() : null;
+    },
+  });
+    }
+</script>
+</html>
